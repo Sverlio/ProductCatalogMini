@@ -21,6 +21,23 @@ namespace ProductCatalogData.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ProductCatalogData.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("ProductCatalogData.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -29,13 +46,8 @@ namespace ProductCatalogData.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -44,41 +56,27 @@ namespace ProductCatalogData.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.HasIndex("CategoryId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Brand = "Faber-Castell",
-                            Category = "Пишещи средства",
-                            Name = "Химикалка Blue Gel",
-                            Price = 2.50m,
-                            Quantity = 150
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Brand = "Miquelrius",
-                            Category = "Хартиени изделия",
-                            Name = "Тетрадка А5 (80 листа)",
-                            Price = 4.80m,
-                            Quantity = 80
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Brand = "Stabilo",
-                            Category = "Пишещи средства",
-                            Name = "Маркер жълт",
-                            Price = 3.20m,
-                            Quantity = 45
-                        });
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ProductCatalogData.Entities.Product", b =>
+                {
+                    b.HasOne("ProductCatalogData.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ProductCatalogData.Entities.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }
