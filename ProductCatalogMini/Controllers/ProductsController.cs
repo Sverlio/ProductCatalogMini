@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Database; 
-using ProductCatalogData.Entities; 
+using ProductCatalogData.Database;
+using ProductCatalogData.Entities;
 
 namespace ProductCatalogMini.Controllers
 {
@@ -15,10 +15,11 @@ namespace ProductCatalogMini.Controllers
             _context = context;
         }
 
-
         public async Task<IActionResult> Index(string searchName, string category)
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products
+                .Include(p => p.Category)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchName))
             {
@@ -27,11 +28,11 @@ namespace ProductCatalogMini.Controllers
 
             if (!string.IsNullOrWhiteSpace(category))
             {
-                query = query.Where(p => p.Category == category);
+                query = query.Where(p => p.Category.Name == category);
             }
 
-            var categories = await _context.Products
-                .Select(p => p.Category)
+            var categories = await _context.Categories
+                .Select(c => c.Name)
                 .Distinct()
                 .OrderBy(c => c)
                 .ToListAsync();
@@ -43,17 +44,9 @@ namespace ProductCatalogMini.Controllers
             return View(products);
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Create()
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return NotFound();
-
-            return View(product);
-        }
-
-
-        public IActionResult Create()
-        {
+            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name");
             return View();
         }
 
@@ -67,14 +60,17 @@ namespace ProductCatalogMini.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryId);
             return View(product);
         }
+
 
         public async Task<IActionResult> Edit(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
+            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -90,16 +86,21 @@ namespace ProductCatalogMini.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryId);
             return View(product);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null) return NotFound();
 
             return View(product);
         }
+
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -112,6 +113,17 @@ namespace ProductCatalogMini.Controllers
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null) return NotFound();
+
+            return View(product);
         }
     }
 }
