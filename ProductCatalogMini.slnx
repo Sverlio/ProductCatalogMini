@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="ProductCatalogData/ProductCatalogData.csproj" />
   <Project Path="ProductCatalogMini/ProductCatalogMini.csproj" />
 </Solution>
