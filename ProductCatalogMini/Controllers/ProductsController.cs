@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProductCatalogData.Entities;
 using ProductCatalogData.Enums;
-using ProductCatalogMini.Services;
-using ProductCatalogMini.Services.interfaces;
+using ProductCatalogMini.Services.Interfaces;
+using ProductCatalogMini.ViewModels.Products;
 
 namespace ProductCatalogMini.Controllers
 {
@@ -19,8 +19,12 @@ namespace ProductCatalogMini.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var products = await _productService.GetAllAsync();
-            return View(products);
+            var model = new ProductsIndexViewModel
+            {
+                Products = await _productService.GetAllAsync()
+            };
+
+            return View(model);
         }
 
         public async Task<IActionResult> Details(int? id)
