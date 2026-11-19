@@ -1,0 +1,29 @@
+﻿@model IEnumerable<ProductCatalogData.Entities.Category>
+
+@{
+    ViewData["Title"] = "Категории";
+}
+
+<h1>Категории</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Добави категория</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Име</th>
+            <th>Описание</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>
