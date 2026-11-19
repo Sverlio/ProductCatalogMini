@@ -2,7 +2,6 @@ using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using ProductCatalogData.Database;
 using ProductCatalogMini.Services;
-using ProductCatalogMini.Services.interfaces;
 using ProductCatalogMini.Services.Interfaces;
 
 var cultureInfo = CultureInfo.InvariantCulture;
