@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Database;
 using ProductCatalogData.Entities;
+using ProductCatalogMini.Services.Interfaces;
 
 namespace ProductCatalogMini.Controllers
 {
     public class SuppliersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ISupplierService _supplierService;
 
-        public SuppliersController(ApplicationDbContext context)
+        public SuppliersController(ISupplierService supplierService)
         {
-            _context = context;
+            _supplierService = supplierService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var suppliers = await _context.Suppliers.ToListAsync();
+            var suppliers = await _supplierService.GetAllAsync();
             return View(suppliers);
         }
 
@@ -33,8 +32,7 @@ namespace ProductCatalogMini.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Suppliers.Add(supplier);
-                await _context.SaveChangesAsync();
+                await _supplierService.CreateAsync(supplier);
                 return RedirectToAction(nameof(Index));
             }
 

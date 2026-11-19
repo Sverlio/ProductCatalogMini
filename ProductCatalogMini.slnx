@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="ProductCatalogData/ProductCatalogData.csproj" />
+  <Project Path="ProductCatalogMini.Services/ProductCatalogMini.Services.csproj" Id="fa1cde6c-af6e-4255-98e6-994c26c68145" />
   <Project Path="ProductCatalogMini/ProductCatalogMini.csproj" />
 </Solution>
