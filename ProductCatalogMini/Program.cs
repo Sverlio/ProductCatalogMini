@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ProductCatalogData.Database;
 using ProductCatalogMini.Services;
 using ProductCatalogMini.Services.interfaces;
+using ProductCatalogMini.Services.Interfaces;
 
 var cultureInfo = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -12,6 +13,8 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
