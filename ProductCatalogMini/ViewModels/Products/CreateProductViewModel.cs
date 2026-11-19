@@ -5,31 +5,30 @@ namespace ProductCatalogMini.ViewModels.Products
 {
     public class CreateProductViewModel
     {
-        [Required(ErrorMessage = "Imeto na produkta e zadaljitelno.")]
-        [StringLength(100, MinimumLength = 2, ErrorMessage = "Imeto tryabva da e mezhdu 2 i 100 simvola.")]
-        [Display(Name = "Ime")]
+        [Required(ErrorMessage = "Името е задължително.")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Името трябва да бъде между 2 и 100 символа.")]
+        [Display(Name = "Име")]
         public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Cenata e zadaljitelna.")]
-        [Range(0.01, 100000, ErrorMessage = "Cenata tryabva da bade polozhitelno chislo.")]
-        [Display(Name = "Cena")]
+        [Required(ErrorMessage = "Цената е задължителна.")]
+        [Range(0.01, 100000, ErrorMessage = "Цената трябва да бъде положително число.")]
+        [Display(Name = "Цена")]
         public decimal Price { get; set; }
 
-        [Required(ErrorMessage = "Nalichnostta e zadaljitelna.")]
-        [Range(0, 100000, ErrorMessage = "Nalichnostta ne moze da bade otricatelna.")]
-        [Display(Name = "Nalichnost")]
+        [Required(ErrorMessage = "Наличността е задължителна.")]
+        [Range(0, 100000, ErrorMessage = "Наличността не може да бъде отрицателно число.")]
+        [Display(Name = "Наличност")]
         public int StockQuantity { get; set; }
 
-        [Required(ErrorMessage = "Statusat e zadaljitelel.")]
-        [Display(Name = "Status")]
+        [EnumDataType(typeof(ProductStatus))]
+        [Display(Name = "Статус")]
         public ProductStatus Status { get; set; } = ProductStatus.InStock;
 
-        [Required(ErrorMessage = "Izberete kategoriya.")]
-        [Display(Name = "Kategoriya")]
+        [Range(1, int.MaxValue, ErrorMessage = "Изберете категория.")]
+        [Display(Name = "Категория")]
         public int CategoryId { get; set; }
 
-        [Required(ErrorMessage = "Izberete dostavchik.")]
-        [Display(Name = "Dostavchik")]
-        public int SupplierId { get; set; }
+        [Display(Name = "Доставчик")]
+        public int? SupplierId { get; set; }
     }
 }
