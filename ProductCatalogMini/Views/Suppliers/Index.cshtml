@@ -1,0 +1,31 @@
+﻿@model IEnumerable<ProductCatalogData.Entities.Supplier>
+
+@{
+    ViewData["Title"] = "Доставчици";
+}
+
+<h1>Доставчици</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Добави доставчик</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Фирма</th>
+            <th>Имейл</th>
+            <th>Телефон</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CompanyName</td>
+                <td>@item.Email</td>
+                <td>@item.Phone</td>
+            </tr>
+        }
+    </tbody>
+</table>
