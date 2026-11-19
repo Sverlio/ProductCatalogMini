@@ -1,4 +1,6 @@
-﻿@model IEnumerable<ProductCatalogData.Entities.Product>
+﻿@using ProductCatalogMini.ViewModels.Products
+@using ProductCatalogMini.Services.DTOs.Products
+@model ProductsIndexViewModel
 
 @{
     ViewData["Title"] = "Продукти";
@@ -7,37 +9,48 @@
 <h1>Продукти</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Добави продукт</a>
+    <a asp-action="Create" class="btn btn-primary">Нов продукт</a>
 </p>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Продукт</th>
-            <th>Цена</th>
-            <th>Наличност</th>
-            <th>Статус</th>
-            <th>Категория</th>
-            <th>Доставчик</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (!Model.Products.Any())
+{
+    <div class="alert alert-info">
+        Няма добавени продукти.
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@item.Name</td>
-                <td>@item.Price.ToString("0.00")</td>
-                <td>@item.StockQuantity</td>
-                <td>@item.Status</td>
-                <td>@item.Category?.Name</td>
-                <td>@item.Supplier?.CompanyName</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Редактирай</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Детайли</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Изтрий</a>
-                </td>
+                <th>ID</th>
+                <th>Име</th>
+                <th>Цена</th>
+                <th>Наличност</th>
+                <th>Статус</th>
+                <th>Категория</th>
+                <th>Доставчик</th>
+                <th>Действия</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Products)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Price.ToString("0.00")</td>
+                    <td>@item.StockQuantity</td>
+                    <td>@item.Status</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.SupplierName</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Детайли</a> |
+                        <a asp-action="Edit" asp-route-id="@item.Id">Редактирай</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Изтрий</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
