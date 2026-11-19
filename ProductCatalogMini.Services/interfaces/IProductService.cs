@@ -1,10 +1,11 @@
 ﻿using ProductCatalogData.Entities;
+using ProductCatalogMini.Services.DTOs.Products;
 
-namespace ProductCatalogMini.Services.interfaces
+namespace ProductCatalogMini.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<List<Product>> GetAllAsync();
+        Task<List<ProductListDto>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
         Task<Product?> GetDetailsByIdAsync(int id);
         Task CreateAsync(Product product);

@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductCatalogData.Database;
 using ProductCatalogData.Entities;
-using ProductCatalogMini.Services.interfaces;
+using ProductCatalogMini.Services.DTOs.Products;
+using ProductCatalogMini.Services.Interfaces;
 
 namespace ProductCatalogMini.Services
 {
@@ -14,13 +15,25 @@ namespace ProductCatalogMini.Services
             _context = context;
         }
 
-        public async Task<List<Product>> GetAllAsync()
+      
+
+        public async Task<List<ProductListDto>> GetAllAsync()
         {
             return await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
+                .Select(p => new ProductListDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    Status = p.Status,
+                    CategoryName = p.Category != null ? p.Category.Name : string.Empty,
+                    SupplierName = p.Supplier != null ? p.Supplier.CompanyName : string.Empty
+                })
                 .ToListAsync();
         }
+
+       
 
         public async Task<Product?> GetByIdAsync(int id)
         {
