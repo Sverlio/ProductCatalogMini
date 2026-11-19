@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProductCatalogData.Database;
 using ProductCatalogData.Entities;
+using ProductCatalogData.Enums;
 
 namespace ProductCatalogMini.Controllers
 {
@@ -15,38 +16,40 @@ namespace ProductCatalogMini.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchName, string category)
+        public async Task<IActionResult> Index()
         {
-            var query = _context.Products
+            var products = await _context.Products
                 .Include(p => p.Category)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(searchName))
-            {
-                query = query.Where(p => p.Name.Contains(searchName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(category))
-            {
-                query = query.Where(p => p.Category.Name == category);
-            }
-
-            var categories = await _context.Categories
-                .Select(c => c.Name)
-                .Distinct()
-                .OrderBy(c => c)
+                .Include(p => p.Supplier)
                 .ToListAsync();
 
-            ViewBag.Categories = new SelectList(categories, category);
-            ViewBag.SearchName = searchName;
-
-            var products = await query.ToListAsync();
             return View(products);
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Details(int? id)
         {
-            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name");
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        }
+
+        public IActionResult Create()
+        {
+            PopulateDropdowns();
             return View();
         }
 
@@ -54,23 +57,35 @@ namespace ProductCatalogMini.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product)
         {
+            ModelState.Remove(nameof(Product.Category));
+            ModelState.Remove(nameof(Product.Supplier));
+            ModelState.Remove(nameof(Product.Reviews));
+
             if (ModelState.IsValid)
             {
-                _context.Products.Add(product);
+                _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryId);
+
+            PopulateDropdowns(product.CategoryId, product.SupplierId);
             return View(product);
         }
 
-
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryId);
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            PopulateDropdowns(product.CategoryId, product.SupplierId);
             return View(product);
         }
 
@@ -78,29 +93,59 @@ namespace ProductCatalogMini.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Product product)
         {
-            if (id != product.Id) return BadRequest();
+            if (id != product.Id)
+            {
+                return NotFound();
+            }
+
+            ModelState.Remove(nameof(Product.Category));
+            ModelState.Remove(nameof(Product.Supplier));
+            ModelState.Remove(nameof(Product.Reviews));
 
             if (ModelState.IsValid)
             {
-                _context.Products.Update(product);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Update(product);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductExists(product.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.CategoryId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryId);
+
+            PopulateDropdowns(product.CategoryId, product.SupplierId);
             return View(product);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var product = await _context.Products
                 .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .Include(p => p.Supplier)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (product == null) return NotFound();
+            if (product == null)
+            {
+                return NotFound();
+            }
 
             return View(product);
         }
-
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -110,20 +155,22 @@ namespace ProductCatalogMini.Controllers
             if (product != null)
             {
                 _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
             }
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Details(int id)
+        private bool ProductExists(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id);
+            return _context.Products.Any(e => e.Id == id);
+        }
 
-            if (product == null) return NotFound();
-
-            return View(product);
+        private void PopulateDropdowns(int? selectedCategoryId = null, int? selectedSupplierId = null)
+        {
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", selectedCategoryId);
+            ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "CompanyName", selectedSupplierId);
+            ViewBag.Statuses = new SelectList(Enum.GetValues<ProductStatus>());
         }
     }
 }
