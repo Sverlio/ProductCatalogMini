@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Database;
 using ProductCatalogData.Entities;
+using ProductCatalogMini.Services.Interfaces;
 
 namespace ProductCatalogMini.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(ApplicationDbContext context)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var categories = await _categoryService.GetAllAsync();
             return View(categories);
         }
 
@@ -33,8 +32,7 @@ namespace ProductCatalogMini.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Categories.Add(category);
-                await _context.SaveChangesAsync();
+                await _categoryService.CreateAsync(category);
                 return RedirectToAction(nameof(Index));
             }
 
