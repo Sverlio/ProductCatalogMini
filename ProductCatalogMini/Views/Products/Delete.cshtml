@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ProductCatalogData.Entities.Product
+
 @{
+    ViewData["Title"] = "Изтрий продукт";
 }
+
+<h1>Изтрий продукт</h1>
+<h3>Сигурни ли сте, че искате да изтриете този продукт?</h3>
+<hr />
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Име на продукт</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Цена</dt>
+        <dd class="col-sm-9">@Model.Price.ToString("0.00")</dd>
+
+        <dt class="col-sm-3">Количество на склад</dt>
+        <dd class="col-sm-9">@Model.StockQuantity</dd>
+
+        <dt class="col-sm-3">Статус</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
+
+        <dt class="col-sm-3">Категория</dt>
+        <dd class="col-sm-9">@Model.Category?.Name</dd>
+
+        <dt class="col-sm-3">Доставчик</dt>
+        <dd class="col-sm-9">@Model.Supplier?.CompanyName</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Изтрий</button>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </form>
+</div>
