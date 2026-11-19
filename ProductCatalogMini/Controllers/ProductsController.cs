@@ -1,28 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Database;
 using ProductCatalogData.Entities;
 using ProductCatalogData.Enums;
+using ProductCatalogMini.Services;
+using ProductCatalogMini.Services.interfaces;
 
 namespace ProductCatalogMini.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IProductService _productService;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var products = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .ToListAsync();
-
+            var products = await _productService.GetAllAsync();
             return View(products);
         }
 
@@ -33,12 +30,7 @@ namespace ProductCatalogMini.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .Include(p => p.Reviews)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var product = await _productService.GetDetailsByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -47,9 +39,9 @@ namespace ProductCatalogMini.Controllers
             return View(product);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            PopulateDropdowns();
+            await PopulateDropdownsAsync();
             return View();
         }
 
@@ -63,12 +55,11 @@ namespace ProductCatalogMini.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await _productService.CreateAsync(product);
                 return RedirectToAction(nameof(Index));
             }
 
-            PopulateDropdowns(product.CategoryId, product.SupplierId);
+            await PopulateDropdownsAsync(product.CategoryId, product.SupplierId);
             return View(product);
         }
 
@@ -79,13 +70,13 @@ namespace ProductCatalogMini.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productService.GetByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
             }
 
-            PopulateDropdowns(product.CategoryId, product.SupplierId);
+            await PopulateDropdownsAsync(product.CategoryId, product.SupplierId);
             return View(product);
         }
 
@@ -106,12 +97,11 @@ namespace ProductCatalogMini.Controllers
             {
                 try
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    await _productService.UpdateAsync(product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.Id))
+                    if (!_productService.Exists(product.Id))
                     {
                         return NotFound();
                     }
@@ -123,7 +113,7 @@ namespace ProductCatalogMini.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            PopulateDropdowns(product.CategoryId, product.SupplierId);
+            await PopulateDropdownsAsync(product.CategoryId, product.SupplierId);
             return View(product);
         }
 
@@ -134,11 +124,7 @@ namespace ProductCatalogMini.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var product = await _productService.GetDetailsByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -151,25 +137,15 @@ namespace ProductCatalogMini.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-            }
-
-            await _context.SaveChangesAsync();
+            await _productService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
+        private async Task PopulateDropdownsAsync(int? selectedCategoryId = null, int? selectedSupplierId = null)
         {
-            return _context.Products.Any(e => e.Id == id);
-        }
-
-        private void PopulateDropdowns(int? selectedCategoryId = null, int? selectedSupplierId = null)
-        {
-            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", selectedCategoryId);
-            ViewBag.SupplierId = new SelectList(_context.Suppliers, "Id", "CompanyName", selectedSupplierId);
+            var (categories, suppliers) = await _productService.GetDropdownDataAsync();
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", selectedCategoryId);
+            ViewBag.SupplierId = new SelectList(suppliers, "Id", "CompanyName", selectedSupplierId);
             ViewBag.Statuses = new SelectList(Enum.GetValues<ProductStatus>());
         }
     }
