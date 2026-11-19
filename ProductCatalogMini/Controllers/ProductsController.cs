@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProductCatalogData.Entities;
 using ProductCatalogData.Enums;
+using ProductCatalogMini.Services.DTOs.Products;
 using ProductCatalogMini.Services.Interfaces;
 using ProductCatalogMini.ViewModels.Products;
 
@@ -46,25 +47,31 @@ namespace ProductCatalogMini.Controllers
         public async Task<IActionResult> Create()
         {
             await PopulateDropdownsAsync();
-            return View();
+            return View(new CreateProductViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(CreateProductViewModel model)
         {
-            ModelState.Remove(nameof(Product.Category));
-            ModelState.Remove(nameof(Product.Supplier));
-            ModelState.Remove(nameof(Product.Reviews));
-
             if (ModelState.IsValid)
             {
-                await _productService.CreateAsync(product);
+                var dto = new CreateProductDto
+                {
+                    Name = model.Name,
+                    Price = model.Price,
+                    StockQuantity = model.StockQuantity,
+                    Status = model.Status,
+                    CategoryId = model.CategoryId,
+                    SupplierId = model.SupplierId
+                };
+
+                await _productService.CreateAsync(dto);
                 return RedirectToAction(nameof(Index));
             }
 
-            await PopulateDropdownsAsync(product.CategoryId, product.SupplierId);
-            return View(product);
+            await PopulateDropdownsAsync(model.CategoryId, model.SupplierId);
+            return View(model);
         }
 
         public async Task<IActionResult> Edit(int? id)

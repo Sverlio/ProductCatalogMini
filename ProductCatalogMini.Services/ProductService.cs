@@ -15,8 +15,6 @@ namespace ProductCatalogMini.Services
             _context = context;
         }
 
-      
-
         public async Task<List<ProductListDto>> GetAllAsync()
         {
             return await _context.Products
@@ -33,8 +31,6 @@ namespace ProductCatalogMini.Services
                 .ToListAsync();
         }
 
-       
-
         public async Task<Product?> GetByIdAsync(int id)
         {
             return await _context.Products.FindAsync(id);
@@ -46,11 +42,21 @@ namespace ProductCatalogMini.Services
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.Reviews)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task CreateAsync(Product product)
+        public async Task CreateAsync(CreateProductDto dto)
         {
+            var product = new Product
+            {
+                Name = dto.Name,
+                Price = dto.Price,
+                StockQuantity = dto.StockQuantity,
+                Status = dto.Status,
+                CategoryId = dto.CategoryId,
+                SupplierId = dto.SupplierId
+            };
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
         }

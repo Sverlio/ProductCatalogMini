@@ -8,7 +8,7 @@ namespace ProductCatalogMini.Services.Interfaces
         Task<List<ProductListDto>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
         Task<Product?> GetDetailsByIdAsync(int id);
-        Task CreateAsync(Product product);
+        Task CreateAsync(CreateProductDto dto);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id);
         bool Exists(int id);
