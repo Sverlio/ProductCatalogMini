@@ -1,5 +1,64 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ProductCatalogData.Entities.Product
+
 @{
+    ViewData["Title"] = "Редактирай продукт";
+}
+
+<h1>Редактирай продукт</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">Име на продукт</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Price" class="form-label">Цена</label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="StockQuantity" class="form-label">Количество на склад</label>
+                <input asp-for="StockQuantity" class="form-control" />
+                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label">Статус</label>
+                <select asp-for="Status" asp-items="ViewBag.Statuses" class="form-select"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label">Категория</label>
+                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-select"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SupplierId" class="form-label">Доставчик</label>
+                <select asp-for="SupplierId" asp-items="ViewBag.SupplierId" class="form-select">
+                    <option value="">-- Без доставчик --</option>
+                </select>
+                <span asp-validation-for="SupplierId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Запази промените</button>
+            <a asp-action="Index" class="btn btn-secondary">Назад</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
