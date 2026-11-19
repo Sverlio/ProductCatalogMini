@@ -61,9 +61,21 @@ namespace ProductCatalogMini.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Product product)
+        public async Task UpdateAsync(EditProductDto dto)
         {
-            _context.Products.Update(product);
+            var product = await _context.Products.FindAsync(dto.Id);
+            if (product == null)
+            {
+                return;
+            }
+
+            product.Name = dto.Name;
+            product.Price = dto.Price;
+            product.StockQuantity = dto.StockQuantity;
+            product.Status = dto.Status;
+            product.CategoryId = dto.CategoryId;
+            product.SupplierId = dto.SupplierId;
+
             await _context.SaveChangesAsync();
         }
 

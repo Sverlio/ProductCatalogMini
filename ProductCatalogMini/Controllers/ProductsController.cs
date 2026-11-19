@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Entities;
 using ProductCatalogData.Enums;
 using ProductCatalogMini.Services.DTOs.Products;
 using ProductCatalogMini.Services.Interfaces;
@@ -87,32 +86,50 @@ namespace ProductCatalogMini.Controllers
                 return NotFound();
             }
 
-            await PopulateDropdownsAsync(product.CategoryId, product.SupplierId);
-            return View(product);
+            var model = new EditProductViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                Status = product.Status,
+                CategoryId = product.CategoryId,
+                SupplierId = product.SupplierId
+            };
+
+            await PopulateDropdownsAsync(model.CategoryId, model.SupplierId);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product)
+        public async Task<IActionResult> Edit(int id, EditProductViewModel model)
         {
-            if (id != product.Id)
+            if (id != model.Id)
             {
                 return NotFound();
             }
-
-            ModelState.Remove(nameof(Product.Category));
-            ModelState.Remove(nameof(Product.Supplier));
-            ModelState.Remove(nameof(Product.Reviews));
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _productService.UpdateAsync(product);
+                    var dto = new EditProductDto
+                    {
+                        Id = model.Id,
+                        Name = model.Name,
+                        Price = model.Price,
+                        StockQuantity = model.StockQuantity,
+                        Status = model.Status,
+                        CategoryId = model.CategoryId,
+                        SupplierId = model.SupplierId
+                    };
+
+                    await _productService.UpdateAsync(dto);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_productService.Exists(product.Id))
+                    if (!_productService.Exists(model.Id))
                     {
                         return NotFound();
                     }
@@ -124,8 +141,8 @@ namespace ProductCatalogMini.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await PopulateDropdownsAsync(product.CategoryId, product.SupplierId);
-            return View(product);
+            await PopulateDropdownsAsync(model.CategoryId, model.SupplierId);
+            return View(model);
         }
 
         public async Task<IActionResult> Delete(int? id)

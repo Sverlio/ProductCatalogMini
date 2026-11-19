@@ -1,58 +1,60 @@
-﻿@model ProductCatalogData.Entities.Product
+﻿@using ProductCatalogMini.ViewModels.Products
+@using ProductCatalogData.Enums
+@model EditProductViewModel
 
 @{
-    ViewData["Title"] = "Редактирай продукт";
+    ViewData["Title"] = "Редакция на продукт";
 }
 
-<h1>Редактирай продукт</h1>
-<hr />
+<h1>Редакция на продукт</h1>
 
+<hr />
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label">Име на продукт</label>
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Price" class="form-label">Цена</label>
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label"></label>
                 <input asp-for="Price" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="StockQuantity" class="form-label">Количество на склад</label>
+            <div class="form-group mb-3">
+                <label asp-for="StockQuantity" class="control-label"></label>
                 <input asp-for="StockQuantity" class="form-control" />
                 <span asp-validation-for="StockQuantity" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Status" class="form-label">Статус</label>
-                <select asp-for="Status" asp-items="ViewBag.Statuses" class="form-select"></select>
+            <div class="form-group mb-3">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<ProductStatus>()" class="form-control"></select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="CategoryId" class="form-label">Категория</label>
-                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-select"></select>
+            <div class="form-group mb-3">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control"></select>
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="SupplierId" class="form-label">Доставчик</label>
-                <select asp-for="SupplierId" asp-items="ViewBag.SupplierId" class="form-select">
-                    <option value="">-- Без доставчик --</option>
-                </select>
+            <div class="form-group mb-3">
+                <label asp-for="SupplierId" class="control-label"></label>
+                <select asp-for="SupplierId" asp-items="ViewBag.SupplierId" class="form-control"></select>
                 <span asp-validation-for="SupplierId" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Запази промените</button>
-            <a asp-action="Index" class="btn btn-secondary">Назад</a>
+            <div class="form-group">
+                <input type="submit" value="Запази" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Назад</a>
+            </div>
         </form>
     </div>
 </div>
