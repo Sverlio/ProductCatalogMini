@@ -1,5 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Database; 
+using ProductCatalogData.Database;
+using System.Globalization;
+
+var cultureInfo = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
