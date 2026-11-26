@@ -1,10 +1,10 @@
-﻿using ProductCatalogData.Entities;
+﻿using ProductCatalogMini.Services.DTOs.Categories;
 
 namespace ProductCatalogMini.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Task<List<Category>> GetAllAsync();
-        Task CreateAsync(Category category);
+        Task<List<CategoryListDto>> GetAllAsync();
+        Task CreateAsync(CreateCategoryDto dto);
     }
 }
