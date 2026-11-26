@@ -41,7 +41,7 @@ namespace ProductCatalogData.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("ProductCatalogData.Entities.Product", b =>
@@ -153,7 +153,7 @@ namespace ProductCatalogData.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("ProductCatalogData.Entities.Product", b =>
