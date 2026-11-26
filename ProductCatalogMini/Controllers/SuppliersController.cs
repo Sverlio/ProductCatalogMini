@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProductCatalogData.Entities;
+using ProductCatalogMini.Services.DTOs.Suppliers;
 using ProductCatalogMini.Services.Interfaces;
+using ProductCatalogMini.ViewModels.Suppliers;
 
 namespace ProductCatalogMini.Controllers
 {
@@ -15,28 +16,37 @@ namespace ProductCatalogMini.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var suppliers = await _supplierService.GetAllAsync();
-            return View(suppliers);
+            var model = new SuppliersIndexViewModel
+            {
+                Suppliers = await _supplierService.GetAllAsync()
+            };
+
+            return View(model);
         }
 
         public IActionResult Create()
         {
-            return View();
+            return View(new CreateSupplierViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Supplier supplier)
+        public async Task<IActionResult> Create(CreateSupplierViewModel model)
         {
-            ModelState.Remove(nameof(Supplier.Products));
-
             if (ModelState.IsValid)
             {
-                await _supplierService.CreateAsync(supplier);
+                var dto = new CreateSupplierDto
+                {
+                    CompanyName = model.CompanyName,
+                    Email = model.Email,
+                    Phone = model.Phone
+                };
+
+                await _supplierService.CreateAsync(dto);
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(supplier);
+            return View(model);
         }
     }
 }
