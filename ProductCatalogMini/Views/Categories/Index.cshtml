@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ProductCatalogData.Entities.Category>
+﻿@using ProductCatalogMini.ViewModels.Categories
+@model CategoriesIndexViewModel
 
 @{
     ViewData["Title"] = "Категории";
@@ -6,24 +7,27 @@
 
 <h1>Категории</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Добави категория</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Име</th>
-            <th>Описание</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (!Model.Categories.Any())
+{
+    <p class="text-muted">Няма добавени категории.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
+                <th>ID</th>
+                <th>Име</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var category in Model.Categories)
+            {
+                <tr>
+                    <td>@category.Id</td>
+                    <td>@category.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
