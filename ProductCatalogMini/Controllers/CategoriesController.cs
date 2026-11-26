@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProductCatalogData.Entities;
+using ProductCatalogMini.Services.DTOs.Categories;
 using ProductCatalogMini.Services.Interfaces;
+using ProductCatalogMini.ViewModels.Categories;
 
 namespace ProductCatalogMini.Controllers
 {
@@ -15,28 +16,36 @@ namespace ProductCatalogMini.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetAllAsync();
-            return View(categories);
+            var model = new CategoriesIndexViewModel
+            {
+                Categories = await _categoryService.GetAllAsync()
+            };
+
+            return View(model);
         }
 
         public IActionResult Create()
         {
-            return View();
+            return View(new CreateCategoryViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Category category)
+        public async Task<IActionResult> Create(CreateCategoryViewModel model)
         {
-            ModelState.Remove(nameof(Category.Products));
-
             if (ModelState.IsValid)
             {
-                await _categoryService.CreateAsync(category);
+                var dto = new CreateCategoryDto
+                {
+                    Name = model.Name,
+                    Description = model.Description
+                };
+
+                await _categoryService.CreateAsync(dto);
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(category);
+            return View(model);
         }
     }
 }
