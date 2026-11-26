@@ -1,10 +1,10 @@
-﻿using ProductCatalogData.Entities;
+﻿using ProductCatalogMini.Services.DTOs.Suppliers;
 
 namespace ProductCatalogMini.Services.Interfaces
 {
     public interface ISupplierService
     {
-        Task<List<Supplier>> GetAllAsync();
-        Task CreateAsync(Supplier supplier);
+        Task<List<SupplierListDto>> GetAllAsync();
+        Task CreateAsync(CreateSupplierDto dto);
     }
 }
