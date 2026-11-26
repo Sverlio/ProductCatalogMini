@@ -27,19 +27,6 @@ namespace ProductCatalogData.Migrations
                 keyColumn: "Id",
                 keyValue: 3);
 
-            migrationBuilder.DropColumn(
-                name: "Brand",
-                table: "Products");
-
-            migrationBuilder.DropColumn(
-                name: "Category",
-                table: "Products");
-
-            migrationBuilder.RenameColumn(
-                name: "Quantity",
-                table: "Products",
-                newName: "CategoryId");
-
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
@@ -52,6 +39,55 @@ namespace ProductCatalogData.Migrations
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
                 });
+
+            migrationBuilder.AddColumn<int>(
+                name: "CategoryId",
+                table: "Products",
+                type: "int",
+                nullable: true);
+
+            // Прехвърляме уникалните имена на съществуващите категории в новата таблица Categories
+            migrationBuilder.Sql(@"
+                INSERT INTO [Categories] ([Name])
+                SELECT DISTINCT LTRIM(RTRIM([Category]))
+                FROM [Products]
+                WHERE [Category] IS NOT NULL AND LTRIM(RTRIM([Category])) <> '';
+
+                IF NOT EXISTS (SELECT 1 FROM [Categories]) AND EXISTS (SELECT 1 FROM [Products])
+                BEGIN
+                    INSERT INTO [Categories] ([Name]) VALUES (N'Общи');
+                END
+
+                UPDATE p
+                SET p.[CategoryId] = c.[Id]
+                FROM [Products] p
+                INNER JOIN [Categories] c ON LTRIM(RTRIM(p.[Category])) = c.[Name];
+
+                UPDATE [Products]
+                SET [CategoryId] = (SELECT TOP (1) [Id] FROM [Categories] ORDER BY [Id])
+                WHERE [CategoryId] IS NULL;
+            ");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "CategoryId",
+                table: "Products",
+                type: "int",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
+
+            migrationBuilder.DropColumn(
+                name: "Brand",
+                table: "Products");
+
+            migrationBuilder.DropColumn(
+                name: "Category",
+                table: "Products");
+
+            migrationBuilder.DropColumn(
+                name: "Quantity",
+                table: "Products");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",
@@ -74,17 +110,9 @@ namespace ProductCatalogData.Migrations
                 name: "FK_Products_Categories_CategoryId",
                 table: "Products");
 
-            migrationBuilder.DropTable(
-                name: "Categories");
-
             migrationBuilder.DropIndex(
                 name: "IX_Products_CategoryId",
                 table: "Products");
-
-            migrationBuilder.RenameColumn(
-                name: "CategoryId",
-                table: "Products",
-                newName: "Quantity");
 
             migrationBuilder.AddColumn<string>(
                 name: "Brand",
@@ -99,6 +127,27 @@ namespace ProductCatalogData.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
+
+            migrationBuilder.AddColumn<int>(
+                name: "Quantity",
+                table: "Products",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.Sql(@"
+                UPDATE p
+                SET p.[Category] = c.[Name]
+                FROM [Products] p
+                INNER JOIN [Categories] c ON p.[CategoryId] = c.[Id];
+            ");
+
+            migrationBuilder.DropColumn(
+                name: "CategoryId",
+                table: "Products");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.InsertData(
                 table: "Products",
