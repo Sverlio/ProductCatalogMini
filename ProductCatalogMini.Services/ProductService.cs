@@ -22,11 +22,12 @@ namespace ProductCatalogMini.Services
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    Brand = p.Brand,
                     Price = p.Price,
                     StockQuantity = p.StockQuantity,
                     Status = p.Status,
-                    CategoryName = p.Category != null ? p.Category.Name : string.Empty,
-                    SupplierName = p.Supplier != null ? p.Supplier.CompanyName : string.Empty
+                    CategoryName = p.Category.Name,
+                    SupplierName = p.Supplier != null ? p.Supplier.CompanyName : null
                 })
                 .ToListAsync();
         }
@@ -41,7 +42,6 @@ namespace ProductCatalogMini.Services
             return await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -50,6 +50,7 @@ namespace ProductCatalogMini.Services
             var product = new Product
             {
                 Name = dto.Name,
+                Brand = dto.Brand,
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 Status = dto.Status,
@@ -70,6 +71,7 @@ namespace ProductCatalogMini.Services
             }
 
             product.Name = dto.Name;
+            product.Brand = dto.Brand;
             product.Price = dto.Price;
             product.StockQuantity = dto.StockQuantity;
             product.Status = dto.Status;
@@ -91,7 +93,7 @@ namespace ProductCatalogMini.Services
 
         public bool Exists(int id)
         {
-            return _context.Products.Any(e => e.Id == id);
+            return _context.Products.Any(p => p.Id == id);
         }
 
         public async Task<(List<Category> Categories, List<Supplier> Suppliers)> GetDropdownDataAsync()

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogData.Enums;
 using ProductCatalogMini.Services.DTOs.Products;
 using ProductCatalogMini.Services.Interfaces;
 using ProductCatalogMini.ViewModels.Products;
@@ -45,8 +44,15 @@ namespace ProductCatalogMini.Controllers
 
         public async Task<IActionResult> Create()
         {
-            await PopulateDropdownsAsync();
-            return View(new CreateProductViewModel());
+            var (categories, suppliers) = await _productService.GetDropdownDataAsync();
+
+            var model = new CreateProductViewModel
+            {
+                Categories = new SelectList(categories, "Id", "Name"),
+                Suppliers = new SelectList(suppliers, "Id", "CompanyName")
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -58,6 +64,7 @@ namespace ProductCatalogMini.Controllers
                 var dto = new CreateProductDto
                 {
                     Name = model.Name,
+                    Brand = model.Brand,
                     Price = model.Price,
                     StockQuantity = model.StockQuantity,
                     Status = model.Status,
@@ -69,7 +76,10 @@ namespace ProductCatalogMini.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await PopulateDropdownsAsync(model.CategoryId, model.SupplierId);
+            var (categories, suppliers) = await _productService.GetDropdownDataAsync();
+            model.Categories = new SelectList(categories, "Id", "Name", model.CategoryId);
+            model.Suppliers = new SelectList(suppliers, "Id", "CompanyName", model.SupplierId);
+
             return View(model);
         }
 
@@ -86,18 +96,22 @@ namespace ProductCatalogMini.Controllers
                 return NotFound();
             }
 
+            var (categories, suppliers) = await _productService.GetDropdownDataAsync();
+
             var model = new EditProductViewModel
             {
                 Id = product.Id,
                 Name = product.Name,
+                Brand = product.Brand,
                 Price = product.Price,
                 StockQuantity = product.StockQuantity,
                 Status = product.Status,
                 CategoryId = product.CategoryId,
-                SupplierId = product.SupplierId
+                SupplierId = product.SupplierId,
+                Categories = new SelectList(categories, "Id", "Name", product.CategoryId),
+                Suppliers = new SelectList(suppliers, "Id", "CompanyName", product.SupplierId)
             };
 
-            await PopulateDropdownsAsync(model.CategoryId, model.SupplierId);
             return View(model);
         }
 
@@ -112,19 +126,20 @@ namespace ProductCatalogMini.Controllers
 
             if (ModelState.IsValid)
             {
+                var dto = new EditProductDto
+                {
+                    Id = model.Id,
+                    Name = model.Name,
+                    Brand = model.Brand,
+                    Price = model.Price,
+                    StockQuantity = model.StockQuantity,
+                    Status = model.Status,
+                    CategoryId = model.CategoryId,
+                    SupplierId = model.SupplierId
+                };
+
                 try
                 {
-                    var dto = new EditProductDto
-                    {
-                        Id = model.Id,
-                        Name = model.Name,
-                        Price = model.Price,
-                        StockQuantity = model.StockQuantity,
-                        Status = model.Status,
-                        CategoryId = model.CategoryId,
-                        SupplierId = model.SupplierId
-                    };
-
                     await _productService.UpdateAsync(dto);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -133,15 +148,17 @@ namespace ProductCatalogMini.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
 
-            await PopulateDropdownsAsync(model.CategoryId, model.SupplierId);
+            var (categories, suppliers) = await _productService.GetDropdownDataAsync();
+            model.Categories = new SelectList(categories, "Id", "Name", model.CategoryId);
+            model.Suppliers = new SelectList(suppliers, "Id", "CompanyName", model.SupplierId);
+
             return View(model);
         }
 
@@ -167,14 +184,6 @@ namespace ProductCatalogMini.Controllers
         {
             await _productService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task PopulateDropdownsAsync(int? selectedCategoryId = null, int? selectedSupplierId = null)
-        {
-            var (categories, suppliers) = await _productService.GetDropdownDataAsync();
-            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", selectedCategoryId);
-            ViewBag.SupplierId = new SelectList(suppliers, "Id", "CompanyName", selectedSupplierId);
-            ViewBag.Statuses = new SelectList(Enum.GetValues<ProductStatus>());
         }
     }
 }

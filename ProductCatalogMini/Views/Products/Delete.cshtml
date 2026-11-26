@@ -1,22 +1,25 @@
 ﻿@model ProductCatalogData.Entities.Product
 
 @{
-    ViewData["Title"] = "Изтрий продукт";
+    ViewData["Title"] = "Изтриване на продукт";
 }
 
-<h1>Изтрий продукт</h1>
-<h3>Сигурни ли сте, че искате да изтриете този продукт?</h3>
-<hr />
+<h1>Изтриване на продукт</h1>
 
+<h3>Сигурни ли сте, че искате да изтриете този продукт?</h3>
 <div>
+    <hr />
     <dl class="row">
-        <dt class="col-sm-3">Име на продукт</dt>
+        <dt class="col-sm-3">Име</dt>
         <dd class="col-sm-9">@Model.Name</dd>
 
-        <dt class="col-sm-3">Цена</dt>
-        <dd class="col-sm-9">@Model.Price.ToString("0.00")</dd>
+        <dt class="col-sm-3">Марка</dt>
+        <dd class="col-sm-9">@Model.Brand</dd>
 
-        <dt class="col-sm-3">Количество на склад</dt>
+        <dt class="col-sm-3">Цена</dt>
+        <dd class="col-sm-9">@Model.Price.ToString("F2")</dd>
+
+        <dt class="col-sm-3">Налично количество</dt>
         <dd class="col-sm-9">@Model.StockQuantity</dd>
 
         <dt class="col-sm-3">Статус</dt>
@@ -26,12 +29,12 @@
         <dd class="col-sm-9">@Model.Category?.Name</dd>
 
         <dt class="col-sm-3">Доставчик</dt>
-        <dd class="col-sm-9">@Model.Supplier?.CompanyName</dd>
+        <dd class="col-sm-9">@(Model.Supplier?.CompanyName ?? "—")</dd>
     </dl>
 
-    <form asp-action="Delete">
+    <form asp-action="Delete" method="post">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Изтрий</button>
+        <input type="submit" value="Изтрий" class="btn btn-danger" />
         <a asp-action="Index" class="btn btn-secondary">Назад</a>
     </form>
 </div>

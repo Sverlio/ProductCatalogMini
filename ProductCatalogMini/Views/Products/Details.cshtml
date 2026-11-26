@@ -5,17 +5,20 @@
 }
 
 <h1>Детайли за продукт</h1>
-<hr />
 
 <div>
+    <hr />
     <dl class="row">
-        <dt class="col-sm-3">Име на продукт</dt>
+        <dt class="col-sm-3">Име</dt>
         <dd class="col-sm-9">@Model.Name</dd>
 
-        <dt class="col-sm-3">Цена</dt>
-        <dd class="col-sm-9">@Model.Price.ToString("0.00")</dd>
+        <dt class="col-sm-3">Марка</dt>
+        <dd class="col-sm-9">@Model.Brand</dd>
 
-        <dt class="col-sm-3">Количество на склад</dt>
+        <dt class="col-sm-3">Цена</dt>
+        <dd class="col-sm-9">@Model.Price.ToString("F2")</dd>
+
+        <dt class="col-sm-3">Налично количество</dt>
         <dd class="col-sm-9">@Model.StockQuantity</dd>
 
         <dt class="col-sm-3">Статус</dt>
@@ -25,11 +28,10 @@
         <dd class="col-sm-9">@Model.Category?.Name</dd>
 
         <dt class="col-sm-3">Доставчик</dt>
-        <dd class="col-sm-9">@Model.Supplier?.CompanyName</dd>
+        <dd class="col-sm-9">@(Model.Supplier?.CompanyName ?? "—")</dd>
     </dl>
 </div>
-
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редактирай</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редакция</a>
     <a asp-action="Index" class="btn btn-secondary">Назад</a>
 </div>

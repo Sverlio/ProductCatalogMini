@@ -31,7 +31,8 @@ namespace ProductCatalogData.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -50,6 +51,11 @@ namespace ProductCatalogData.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -78,7 +84,12 @@ namespace ProductCatalogData.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Product_Price_Positive", "[Price] > 0");
+
+                            t.HasCheckConstraint("CK_Product_StockQuantity_NonNegative", "[StockQuantity] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("ProductCatalogData.Entities.Review", b =>
@@ -90,7 +101,8 @@ namespace ProductCatalogData.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -110,7 +122,10 @@ namespace ProductCatalogData.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Review_Rating_Range", "[Rating] >= 1 AND [Rating] <= 5");
+                        });
                 });
 
             modelBuilder.Entity("ProductCatalogData.Entities.Supplier", b =>
@@ -128,11 +143,13 @@ namespace ProductCatalogData.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 
