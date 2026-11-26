@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ProductCatalogData.Entities.Supplier>
+﻿@using ProductCatalogMini.ViewModels.Suppliers
+@model SuppliersIndexViewModel
 
 @{
     ViewData["Title"] = "Доставчици";
@@ -6,26 +7,27 @@
 
 <h1>Доставчици</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Добави доставчик</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Фирма</th>
-            <th>Имейл</th>
-            <th>Телефон</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (!Model.Suppliers.Any())
+{
+    <p class="text-muted">Няма добавени доставчици.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@item.CompanyName</td>
-                <td>@item.Email</td>
-                <td>@item.Phone</td>
+                <th>ID</th>
+                <th>Фирма</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var supplier in Model.Suppliers)
+            {
+                <tr>
+                    <td>@supplier.Id</td>
+                    <td>@supplier.CompanyName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
